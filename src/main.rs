@@ -2,9 +2,12 @@ use image::GenericImageView;
 use plotters::prelude::*;
 
 fn main() {
-    let mut histogram_r: [i32; 256] = [0; 256];
-    let mut histogram_g: [i32; 256] = [0; 256];
-    let mut histogram_b: [i32; 256] = [0; 256];
+    let mut histogram_r = [0; 256];
+    let mut histogram_g = [0; 256];
+    let mut histogram_b = [0; 256];
+
+    let mut max_rgb = [0; 3];
+    let mut max_histogram_color: i32 = 0;
 
     // Load the image
     let img = image::open("src/index.jpeg").unwrap();
@@ -19,10 +22,34 @@ fn main() {
         histogram_b[blue as usize] += 1;
     }
 
-    area_chart(histogram_r, histogram_g, histogram_b);
+    for red in histogram_r {
+        if max_rgb[0] < red {
+            max_rgb[0] = red;
+        }
+    }
+
+    for green in histogram_g {
+        if max_rgb[1] < green {
+            max_rgb[1] = green;
+        }
+    }
+
+    for blue in histogram_b {
+        if max_rgb[2] < blue {
+            max_rgb[2] = blue;
+        }
+    }
+
+    for color in max_rgb {
+        if max_histogram_color < color {
+            max_histogram_color = color;
+        }
+    }
+
+    area_chart(histogram_r, histogram_g, histogram_b, max_histogram_color);
 }
 
-fn area_chart(red: [i32; 256], green: [i32; 256], blue: [i32; 256]) {
+fn area_chart(red: [i32; 256], green: [i32; 256], blue: [i32; 256], v_max: i32) {
     let root_area =
         BitMapBackend::new("images/image_histogram.png", (600, 400)).into_drawing_area();
     root_area.fill(&WHITE).unwrap();
@@ -30,8 +57,8 @@ fn area_chart(red: [i32; 256], green: [i32; 256], blue: [i32; 256]) {
     let mut ctx = ChartBuilder::on(&root_area)
         .set_label_area_size(LabelAreaPosition::Left, 40)
         .set_label_area_size(LabelAreaPosition::Bottom, 30)
-        .caption("Scatter Demo", ("sans-serif", 40))
-        .build_cartesian_2d(0..255, 0..10000)
+        .caption("Histogram", ("sans-serif", 40))
+        .build_cartesian_2d(0..255, 0..v_max)
         .unwrap();
 
     ctx.configure_mesh().draw().unwrap();
