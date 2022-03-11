@@ -2,6 +2,8 @@ use image::GenericImageView;
 use plotters::prelude::*;
 
 fn main() {
+    let path = "src/index.jpeg";
+
     let mut histogram_r = [0; 256];
     let mut histogram_g = [0; 256];
     let mut histogram_b = [0; 256];
@@ -10,7 +12,7 @@ fn main() {
     let mut max_histogram_color: i32 = 0;
 
     // Load the image
-    let img = image::open("src/index.jpeg").unwrap();
+    let img = image::open(path).unwrap();
 
     // Iterate over the coordinates and pixels of the image
     for (_x, _y, pixel) in img.pixels() {
